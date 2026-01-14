@@ -1,0 +1,62 @@
+.auth {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background:
+    radial-gradient(1000px 600px at 15% 10%, rgba(20, 184, 166, 0.22), transparent 60%),
+    radial-gradient(900px 500px at 85% 25%, rgba(99, 102, 241, 0.18), transparent 55%),
+    #0b1020;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 560px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 22px 70px rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+/* header zona unutar kartice */
+.auth-title {
+  margin: 0;
+  font-size: 26px;
+  color: #0f172a;
+  letter-spacing: 0.2px;
+}
+
+.auth-subtitle {
+  margin: 6px 0 0;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* wrapper za sadržaj (formu) */
+.auth-card > .auth-inner {
+  padding: 22px 22px 24px;
+}
+
+/* gornji deo kartice (naslov + highlight) */
+.auth-card > .auth-head {
+  padding: 22px;
+  background: linear-gradient(135deg, rgba(20,184,166,0.10), rgba(99,102,241,0.08));
+  border-bottom: 1px solid rgba(15,23,42,0.08);
+}
+
+/* mala “pill” oznaka */
+.auth-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f766e;
+  background: rgba(20,184,166,0.14);
+  border: 1px solid rgba(20,184,166,0.22);
+  padding: 6px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}

@@ -1,5 +1,5 @@
 import React from "react";
-import "./input.css"
+import "./spiner.css";
 
 type SpinnerProps = { 
     size?: number;       //pixel

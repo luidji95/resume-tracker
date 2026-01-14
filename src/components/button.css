@@ -2,13 +2,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 0.5rem;
+  font-weight: 500;
   border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-weight: 600;
+  border-radius: 0.375rem;
   cursor: pointer;
-  transition: 0.15s ease;
+  transition: all 0.2s;
+  font-family: inherit;
+  line-height: 1;
+  background-color: #1a1a1a;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.btn:hover {
+  border-color: #646cff;
 }
 
 .btn:disabled {
@@ -16,25 +23,85 @@
   cursor: not-allowed;
 }
 
-.btn--sm { padding: 8px 12px; font-size: 13px; }
-.btn--md { padding: 10px 14px; font-size: 14px; }
-.btn--lg { padding: 12px 16px; font-size: 15px; }
+/* Varijante */
+.btn--primary {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
 
-/* VARIANTS (ti kasnije menjaš boje kako želiš) */
-.btn--primary { background: #111827; color: white; }
-.btn--primary:hover:not(:disabled) { opacity: 0.9; }
+.btn--primary:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
 
-.btn--secondary { background: #f3f4f6; color: #111827; border-color: #e5e7eb; }
-.btn--secondary:hover:not(:disabled) { background: #e5e7eb; }
+.btn--secondary {
+  background-color: var(--secondary);
+  color: white;
+  border-color: var(--secondary);
+}
 
-.btn--danger { background: #dc2626; color: white; }
-.btn--danger:hover:not(:disabled) { opacity: 0.9; }
+.btn--secondary:hover:not(:disabled) {
+  background-color: #4b5563;
+  border-color: #4b5563;
+}
 
-.btn--ghost { background: transparent; color: #111827; border-color: #e5e7eb; }
-.btn--ghost:hover:not(:disabled) { background: #f9fafb; }
+.btn--danger {
+  background-color: var(--danger);
+  color: white;
+  border-color: var(--danger);
+}
 
-.btn__content {
+.btn--danger:hover:not(:disabled) {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+.btn--ghost {
+  background-color: transparent;
+  color: currentColor;
+  border-color: var(--border);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Veličine */
+.btn--sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.btn--md {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+.btn--lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+}
+
+/* Loading state */
+.btn--loading .btn__content {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
+
+.btn--loading .btn__text {
+  opacity: 0.8;
+}
+
+@media (prefers-color-scheme: light) {
+  .btn {
+    background-color: #f9f9f9;
+    color: #213547;
+  }
+
+  .btn--ghost:hover:not(:disabled) {
+    background-color: var(--light);
+  }
+}
+
