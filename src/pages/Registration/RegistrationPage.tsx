@@ -6,6 +6,7 @@ import { PasswordInput } from "../../components/PasswordInput";
 import { Button } from "../../components/Button";
 import "../Login/loginPage.css"; 
 import "./registration.css";
+import { supabse } from "../../lib/supabaseClient";
 
 
 
@@ -31,6 +32,8 @@ const [formData, setFormData] = useState<RegisterFormData>({
   confirmPassword: "",
   terms: false,
 });
+const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState<string | null>(null);
 
 
 const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,7 +45,57 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 const handleSubmit = (e) => {
     e.preventDefault();
     console.log('REGISTER DATA : ', formData);
+
+    // minimalna validacije pre zoda
+    if(!formData.email || !formData.password){
+        setError("Email and password are required.");
+        return;
+    }
+
+    if(!formData.terms){
+        setError('You must accept the terms to continue.');
+        return;
+    }
+
+    setIsLoading(true);
+
+    // auth signUp
+    try  {
+        const {data, error: singUpError} = await supabse.auth.signUp({
+            email: formData.email,
+            password: formData.password,
+        });
+
+        if(singUpError) throw singUpError;
+
+        const user = data.user;
+        if(!user) {
+            throw new Error("Account created, user is not available yet.")
+        }
+
+
+        // insert iz forme za registraciju u tabelu profiles u supabase
+        const {error: profileError} = await supabse.from("profiles").insert({
+            id: user.id,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            username: formData.username,
+            email: formData.email,
+        });
+
+        if(profileError) throw new profileError;
+
+        console.log("REGISTER SUCCESS", user.id);
+        alert(`REGISTER SUCCES - USER ID : ${user.id}`);
+        
+    } catch(err: any) {
+        setError(err?.message ?? "Registration failed");
+    } finally {
+        setIsLoading(false);
+    }
 }
+
+
 
 
 
@@ -63,7 +116,7 @@ const handleSubmit = (e) => {
 
         <PasswordInput name="password" placeholder="••••••••" autoComplete="new-password" onChange={handleChange} />
 
-        {/* za sada ćemo reuse-ovati PasswordInput i kao confirm, bez toggle je isto ok */}
+        {/* za sada reuse PasswordInput  */}
         <PasswordInput
           label="Confirm password"
           name="confirmPassword"
@@ -80,11 +133,13 @@ const handleSubmit = (e) => {
         </label>
 
         <div className="form-actions">
-          <Button type="submit">Create account</Button>
+            {error ? <p style={{ color: "crimson", marginTop: 8 }}>{error}</p> : null}
 
-          <p className="form-footer">
-            Already have an account? <Link to="/login">Login</Link>
-          </p>
+            <Button type="submit" isLoading={isLoading}>Create account</Button>
+
+            <p className="form-footer">
+                Already have an account? <Link to="/login">Login</Link>
+             </p>
         </div>
       </form>
     </AuthLayout>
