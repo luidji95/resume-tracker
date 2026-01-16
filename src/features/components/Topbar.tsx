@@ -13,7 +13,7 @@ export const Topbar = () => {
 
                 <div className='topbar-profile'>
                     <button className='notification-btn'>
-                        <img alt='notification'></img>
+                        <span className="notification-icon">🔔</span>
                     </button>
 
                     <div className='profile-info'>

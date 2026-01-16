@@ -1,10 +1,57 @@
 .topbar{
-    height: 150px;
-    width: 600px;
-    background-color: blue;
+    min-height: 120px;
+    width: 100%;
+    background-color: whitesmoke;
+    box-sizing: border-box;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
 }
 .topbar-main{
-    height: 150px;
-    width: 600px;
-    background-color: rgba(83, 83, 126, 0.836);
+    height: 75px;
+    width: 100%;
+    /* background-color: aqua; */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+
 }
+
+.topbar-profile{
+    /* height: 70px;
+    width: 100px;
+    background-color: rgba(187, 212, 45, 0.836); */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+.topbar-toolbar{
+    /* background-color: red; */
+    height: 75px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+
+}
+.toolbar-actions{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+.notification-icon{
+    cursor: pointer;
+}
+.notification-btn:hover {
+  opacity: 0.8;
+}
+.toolbar-actions button {
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+
+
