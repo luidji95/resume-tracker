@@ -1,4 +1,4 @@
-import React from "react";
+
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LoginPage } from "./pages/Auth/Login/LoginPage";
 import { RegistrationPage } from "./pages/Auth/Registration/RegistrationPage";

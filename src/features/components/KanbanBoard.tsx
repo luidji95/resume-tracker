@@ -1,4 +1,4 @@
-import React from 'react'
+
 import "./css/kanbanBoard.css";
 
 export const KanbanBoard = () => {

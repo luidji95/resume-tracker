@@ -111,6 +111,8 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="form-actions">
             
             {message ? <p style={{color: "green"}}>{message}</p>:null}
+            {error && <p style={{ color: "red" }}>{error}</p>}
+
 
             <Button type="submit" isLoading={isLoading}>Create account</Button>
 

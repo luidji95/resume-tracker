@@ -43,7 +43,7 @@ export const LoginPage = () => {
             password: formData.password,
             });
 
-            if (error) throw error;
+            if(error) throw error
 
             const user = data.user;
             if (!user) throw new Error("No user returned.");
@@ -87,6 +87,9 @@ export const LoginPage = () => {
                 Try demo as guest
             </Button>
         </div>
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
 
         <p className="form-footer">
           Don't have an account? <Link to={"/register"}>Create one</Link>
