@@ -1,124 +1,147 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
 import { AuthLayout } from "../../../layouts/AuthLayout/AuthLayout";
 import { Input } from "../../../components/ui/Input";
 import { PasswordInput } from "../../../components/ui/PasswordInput";
 import { Button } from "../../../components/ui/Button";
-import "../Login/loginPage.css"; 
-import "./registration.css";
 import { supabase } from "../../../lib/supabaseClient";
 
+import "./registration.css";
+import { registerSchema } from "../../../schemas/auth.schema";
 
-
-
-type RegisterFormData = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  username: string;
-  password: string;
-  confirmPassword: string;
-  terms: boolean;
-};
-
-
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export const RegistrationPage = () => {
-const [formData, setFormData] = useState<RegisterFormData>({
-  firstName: "",
-  lastName: "",
-  email: "",
-  username: "",
-  password: "",
-  confirmPassword: "",
-  terms: false,
-});
-const [isLoading, setIsLoading] = useState(false);
-const [message, setMessage] = useState<string | null>(null);
-const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      terms: false,
+    },
+    mode: "onSubmit",
+  });
 
+  const onSubmit = async (data: RegisterFormData) => {
+    setError(null);
+    setMessage(null);
+    setIsLoading(true);
 
-const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value, type, checked} = e.target;
+    try {
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        
+        // options: { data: { firstName: data.firstName, lastName: data.lastName, username: data.username } } - Moram da vidim kasnije da li cu metadata ili da gurnem u storage 
+      });
 
-    setFormData(prev => ({...prev, [name]: type === 'checkbox' ? checked : value}));
-};
+      if (signUpError) throw signUpError;
 
+      // Ovde user mora da potvrdi preko mejla autetifikaciju
+      setMessage("Account created. Please check your email to confirm, then login.");
 
-
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  setError(null);
-  setMessage(null);
-  setIsLoading(true);
-
-  try {
-    const { error: signUpError } = await supabase.auth.signUp({
-      email: formData.email!,
-      password: formData.password!,
-    });
-
-    if (signUpError) throw signUpError;
-
-    setMessage("Account created. Please check your email to confirm, then login.");
-    
-  } catch (err: any) {
-    setError(err?.message ?? "Registration failed.");
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-
-
+      reset();
+    } catch (err: unknown) {
+      if(err instanceof Error){
+        setError(err?.message ?? "Registration failed.");
+      } else {
+        setError("Registration failed");
+      }
+      
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <AuthLayout
-      title="Create account"
-      subtitle="Create your account to access your dashboard."
-    >
-      <form className="form" onSubmit={handleSubmit}>
+    <AuthLayout title="Create account" subtitle="Create your account to access your dashboard.">
+      <form className="form" onSubmit={handleSubmit(onSubmit)}>
         <div className="form-row">
-          <Input label="First name" name="firstName" placeholder="Miloš" value={formData.firstName} autoComplete="given-name" onChange={handleChange} />
-          <Input label="Last name" name="lastName" placeholder="Petrović" value={formData.lastName} autoComplete="family-name" onChange={handleChange} />
+          <Input
+            label="First name"
+            placeholder="Miloš"
+            autoComplete="given-name"
+            {...register("firstName")}
+            error={errors.firstName?.message}
+          />
+
+          <Input
+            label="Last name"
+            placeholder="Petrović"
+            autoComplete="family-name"
+            {...register("lastName")}
+            error={errors.lastName?.message}
+          />
         </div>
 
-        <Input label="Username" name="username" placeholder="luidji95" value={formData.username} autoComplete="username" onChange={handleChange} />
+        <Input
+          label="Username"
+          placeholder="luidji95"
+          autoComplete="username"
+          {...register("username")}
+          error={errors.username?.message}
+        />
 
-        <Input label="Email" name="email" placeholder="you@example.com" value={formData.email} autoComplete="email" onChange={handleChange} />
+        <Input
+          label="Email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          {...register("email")}
+          error={errors.email?.message}
+        />
 
-        <PasswordInput name="password" placeholder="••••••••" value={formData.password} autoComplete="new-password" onChange={handleChange} />
+        <PasswordInput
+          label="Password"
+          placeholder="••••••••"
+          autoComplete="new-password"
+          {...register("password")}
+          error={errors.password?.message}
+        />
 
-        {/* za sada reuse PasswordInput  */}
         <PasswordInput
           label="Confirm password"
-          name="confirmPassword"
           placeholder="••••••••"
-          value={formData.confirmPassword}
           autoComplete="new-password"
-          onChange={handleChange}
+          {...register("confirmPassword")}
+          error={errors.confirmPassword?.message}
         />
 
         <label className="checkbox">
-          <input type="checkbox" name="terms" checked={formData.terms} onChange={handleChange} />
+          <input type="checkbox" {...register("terms")} />
           <span>
             I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
           </span>
         </label>
+        {errors.terms && <p className="error">{errors.terms.message}</p>}
 
         <div className="form-actions">
-            
-            {message ? <p style={{color: "green"}}>{message}</p>:null}
-            {error && <p style={{ color: "red" }}>{error}</p>}
+          {message ? <p style={{ color: "green" }}>{message}</p> : null}
+          {error ? <p style={{ color: "red" }}>{error}</p> : null}
 
+          <Button type="submit" isLoading={isLoading}>
+            Create account
+          </Button>
 
-            <Button type="submit" isLoading={isLoading}>Create account</Button>
-
-            <p className="form-footer">
-                Already have an account? <Link to="/login">Login</Link>
-             </p>
+          <p className="form-footer">
+            Already have an account? <Link to="/login">Login</Link>
+          </p>
         </div>
       </form>
     </AuthLayout>

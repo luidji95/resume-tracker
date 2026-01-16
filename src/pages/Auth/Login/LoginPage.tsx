@@ -1,111 +1,127 @@
-import React, { useState } from 'react'
-import { Input } from '../../../components/ui/Input'
-import { Button } from '../../../components/ui/Button'
-import { AuthLayout } from '../../../layouts/AuthLayout/AuthLayout';
-import { PasswordInput } from '../../../components/ui/PasswordInput';
-import "./loginPage.css";
-import { Link } from 'react-router-dom';
-import { supabase } from '../../../lib/supabaseClient';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-type LoginFormData = {
-    email: string,
-    password: string,
-}
+import { Input } from "../../../components/ui/Input";
+import { PasswordInput } from "../../../components/ui/PasswordInput";
+import { Button } from "../../../components/ui/Button";
+import { AuthLayout } from "../../../layouts/AuthLayout/AuthLayout";
+import { supabase } from "../../../lib/supabaseClient";
+
+import { loginSchema } from "../../../schemas/auth.schema";
+import type { z } from "zod";
+
+import "./loginPage.css";
+
+
+
+
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export const LoginPage = () => {
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-    const [formData, setFormData] = useState<LoginFormData>({
-        email: "",
-        password: ""
-    });
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    mode: "onSubmit",
+  });
 
-    const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-        const {name, value } = e.target;
-
-        setFormData(prev => ({...prev, [name] : value }));
 
 
-    };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+  const onSubmit = async (data: LoginFormData) => {
+    setError(null);
+    setIsLoading(true);
 
-        setError(null);
-        setIsLoading(true);
+    try {
+      const { data: authData, error: authError } =
+        await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        });
 
-        try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-            email: formData.email,
-            password: formData.password,
-            });
+      if (authError) throw authError;
 
-            if(error) throw error
+      const user = authData.user;
+      if (!user) throw new Error("No user returned.");
 
-            const user = data.user;
-            if (!user) throw new Error("No user returned.");
+      // Upsert - Azuriranje profila
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert(
+          {
+            id: user.id,
+            email: user.email,
+          },
+          { onConflict: "id" }
+        );
 
-            const { error: profileError } = await supabase
-            .from("profiles")
-            .upsert(
-                {
-                id: user.id,
-                email: user.email,
-                },
-                { onConflict: "id" }
-            );
+      if (profileError) throw profileError;
 
-            if (profileError) throw profileError;
-
-            navigate("/dashboard");
-        } catch (err: any) {
+      reset();
+      navigate("/dashboard");
+    } catch (err: unknown) {
+        if(err instanceof Error) {
             setError(err?.message ?? "Login failed.");
-        } finally {
-            setIsLoading(false);
+        } else {
+            setError("Login failed");
         }
-};
-
-
+      
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
+    <AuthLayout title="Login" subtitle="Enter your credentials to access your dashboard.">
+      <form className="form" onSubmit={handleSubmit(onSubmit)}>
+        <Input
+          label="Email"
+          placeholder="you@example.com"
+          {...register("email")}
+          error={errors.email?.message}
+        />
 
-     <AuthLayout title="Login" subtitle="Enter your credentials to access your dashboard.">
-      <form className="form" onSubmit={handleSubmit}>
-        <Input label="Email" placeholder="you@example.com" name='email' value={formData.email} onChange={handleChange}/>
+        <PasswordInput
+          placeholder="••••••••"
+          {...register("password")}
+          error={errors.password?.message}
+        />
 
-        <PasswordInput placeholder="••••••••" name='password' value={formData.password} onChange={handleChange} />
+        <div className="form-actions">
+          <Button type="submit" isLoading={isLoading}>
+            Login
+          </Button>
 
-        <div className='form-actions'>
-
-            <Button type='submit' isLoading={isLoading}>Login</Button>
-
-            <Button variant='ghost' type='button' className='guest-demo-btn'>
-                <span className='guest-icon'>👁️</span>
-                Try demo as guest
-            </Button>
+          <Button variant="ghost" type="button" className="guest-demo-btn">
+            <span className="guest-icon">👁️</span>
+            Try demo as guest
+          </Button>
         </div>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
+        {error && (
+          <p style={{ color: "red", marginTop: "10px", border: "1px solid red", padding: 8 }}>
+            {error}
+          </p>
+        )}
 
         <p className="form-footer">
-          Don't have an account? <Link to={"/register"}>Create one</Link>
+          Don't have an account? <Link to="/register">Create one</Link>
         </p>
-
-        
       </form>
     </AuthLayout>
-
-
-    
-    
-
-    
-  )
-}
-
-
-
+  );
+};
