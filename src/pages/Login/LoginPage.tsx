@@ -74,13 +74,13 @@ export const LoginPage = () => {
 
      <AuthLayout title="Login" subtitle="Enter your credentials to access your dashboard.">
       <form className="form" onSubmit={handleSubmit}>
-        <Input label="Email" placeholder="you@example.com" value={formData.email} onChange={handleChange}/>
+        <Input label="Email" placeholder="you@example.com" name='email' value={formData.email} onChange={handleChange}/>
 
-        <PasswordInput placeholder="••••••••" value={formData.password} onChange={handleChange} />
+        <PasswordInput placeholder="••••••••" name='password' value={formData.password} onChange={handleChange} />
 
         <div className='form-actions'>
 
-            <Button type='submit'>Login</Button>
+            <Button type='submit' isLoading={isLoading}>Login</Button>
 
             <Button variant='ghost' type='button' className='guest-demo-btn'>
                 <span className='guest-icon'>👁️</span>

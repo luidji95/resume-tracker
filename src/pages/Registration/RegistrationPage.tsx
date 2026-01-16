@@ -7,7 +7,7 @@ import { Button } from "../../components/Button";
 import "../Login/loginPage.css"; 
 import "./registration.css";
 import { supabase } from "../../lib/supabaseClient";
-import { useNavigate } from "react-router-dom";
+
 
 
 
@@ -36,7 +36,7 @@ const [formData, setFormData] = useState<RegisterFormData>({
 const [isLoading, setIsLoading] = useState(false);
 const [message, setMessage] = useState<string | null>(null);
 const [error, setError] = useState(null);
-const navigate = useNavigate();
+
 
 
 const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,7 +63,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     if (signUpError) throw signUpError;
 
     setMessage("Account created. Please check your email to confirm, then login.");
-    navigate("/login"); // ili ostavi na istoj strani i prikaži poruku
+    
   } catch (err: any) {
     setError(err?.message ?? "Registration failed.");
   } finally {
@@ -81,27 +81,28 @@ const handleSubmit = async (e: React.FormEvent) => {
     >
       <form className="form" onSubmit={handleSubmit}>
         <div className="form-row">
-          <Input label="First name" name="firstName" placeholder="Miloš" autoComplete="given-name" onChange={handleChange} />
-          <Input label="Last name" name="lastName" placeholder="Petrović" autoComplete="family-name" onChange={handleChange} />
+          <Input label="First name" name="firstName" placeholder="Miloš" value={formData.firstName} autoComplete="given-name" onChange={handleChange} />
+          <Input label="Last name" name="lastName" placeholder="Petrović" value={formData.lastName} autoComplete="family-name" onChange={handleChange} />
         </div>
 
-        <Input label="Username" name="username" placeholder="luidji95" autoComplete="username" onChange={handleChange} />
+        <Input label="Username" name="username" placeholder="luidji95" value={formData.username} autoComplete="username" onChange={handleChange} />
 
-        <Input label="Email" name="email" placeholder="you@example.com" autoComplete="email" onChange={handleChange} />
+        <Input label="Email" name="email" placeholder="you@example.com" value={formData.email} autoComplete="email" onChange={handleChange} />
 
-        <PasswordInput name="password" placeholder="••••••••" autoComplete="new-password" onChange={handleChange} />
+        <PasswordInput name="password" placeholder="••••••••" value={formData.password} autoComplete="new-password" onChange={handleChange} />
 
         {/* za sada reuse PasswordInput  */}
         <PasswordInput
           label="Confirm password"
           name="confirmPassword"
           placeholder="••••••••"
+          value={formData.confirmPassword}
           autoComplete="new-password"
           onChange={handleChange}
         />
 
         <label className="checkbox">
-          <input type="checkbox" name="terms" />
+          <input type="checkbox" name="terms" checked={formData.terms} onChange={handleChange} />
           <span>
             I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
           </span>
