@@ -79,26 +79,25 @@ export const LoginPage = () => {
       if (!user) throw new Error("No user returned.");
 
       
-      const pending = getPendingProfile();
+      
 
       // Upsert - Azuriranje profila
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .upsert(
-          {
-            id: user.id,
-            email: user.email,
-            firstName: pending?.firstName ?? null,
-            lastName: pending?.lastName ?? null,
-            userName: pending?.username ?? null,
-         
-          },
-          { onConflict: "id" }
-        );
+      // uvek osiguraj da red postoji
+      await supabase.from("profiles").upsert({ id: user.id, email: user.email }, { onConflict: "id" });
 
-      if (profileError) throw profileError;
+        const pending = getPendingProfile();
+        if (pending) {
+            await supabase.from("profiles").update({
+            firstName: pending.firstName,
+            lastName: pending.lastName,
+            userName: pending.username,
+             }).eq("id", user.id);
 
-      localStorage.removeItem('pending_profile');
+            localStorage.removeItem("pending_profile");
+        }
+
+
+      
 
       reset();
       navigate("/dashboard");
