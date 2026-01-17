@@ -47,10 +47,18 @@ export const RegistrationPage = () => {
     try {
       const { error: signUpError } = await supabase.auth.signUp({
         email: data.email,
-        password: data.password,
-        
-        // options: { data: { firstName: data.firstName, lastName: data.lastName, username: data.username } } - Moram da vidim kasnije da li cu metadata ili da gurnem u storage 
+        password: data.password, 
       });
+
+      localStorage.setItem(
+        "pending_profile",
+        JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          userName: data.username,
+        })
+      );
+
 
       if (signUpError) throw signUpError;
 

@@ -20,6 +20,26 @@ import "./loginPage.css";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
+type PendingProfile = {
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+};
+
+const getPendingProfile = (): PendingProfile | null => {
+  const raw = localStorage.getItem("pending_profile");
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as PendingProfile;
+  } catch {
+    return null;
+  }
+};
+
+
+
+
 export const LoginPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,6 +78,9 @@ export const LoginPage = () => {
       const user = authData.user;
       if (!user) throw new Error("No user returned.");
 
+      
+      const pending = getPendingProfile();
+
       // Upsert - Azuriranje profila
       const { error: profileError } = await supabase
         .from("profiles")
@@ -65,11 +88,17 @@ export const LoginPage = () => {
           {
             id: user.id,
             email: user.email,
+            firstName: pending?.firstName ?? null,
+            lastName: pending?.lastName ?? null,
+            userName: pending?.username ?? null,
+         
           },
           { onConflict: "id" }
         );
 
       if (profileError) throw profileError;
+
+      localStorage.removeItem('pending_profile');
 
       reset();
       navigate("/dashboard");
