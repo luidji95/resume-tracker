@@ -28,13 +28,22 @@ export type JobType = {
   tags?: string[];
 };
 
+type StageOption = {
+  id: StageId;
+  title: string;
+};
+
 type StageColumnProps = {
   id: StageId;
   title: string;
   color: string;
   jobs: JobType[];
+
   onAddJob?: (stageId: StageId) => void;
-  onMoveJob?: (jobId: string, toStage: StageId) => void; // ✅ dodato
+  onMoveJob?: (jobId: string, toStage: StageId) => void;
+  onRestoreJob?: (jobId: string) => void;
+
+  allStages: StageOption[];
 };
 
 export const StageColumn = ({
@@ -44,8 +53,10 @@ export const StageColumn = ({
   jobs,
   onAddJob,
   onMoveJob,
+  onRestoreJob,
+  allStages,
 }: StageColumnProps) => {
-  const isApplied = id === "applied"; // ✅ fix
+  const isApplied = id === "applied";
 
   return (
     <div className="stage_column" data-stage={id}>
@@ -71,7 +82,13 @@ export const StageColumn = ({
           <p className="stage_column_empty">No jobs yet</p>
         ) : (
           jobs.map((job) => (
-            <CompanyCard key={job.id} {...job} onMove={onMoveJob} />
+            <CompanyCard
+              key={job.id}
+              {...job}
+              onMove={onMoveJob}
+              onRestore={onRestoreJob}
+              allStages={allStages}
+            />
           ))
         )}
       </div>

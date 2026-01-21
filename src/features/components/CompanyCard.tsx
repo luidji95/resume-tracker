@@ -1,13 +1,17 @@
 import "./css/companyCard.css";
 import type { JobType, StageId } from "./StageColumn";
 
-type StatusVariant = "active" | "accepted" | "rejected";
+// type StatusVariant = "active" | "accepted" | "rejected";
+
+type StageOption = {
+  id: StageId;
+  title: string;
+};
 
 type CompanyCardProps = JobType & {
-  onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
-  onStatusChange?: (id: string, newStatus: StatusVariant) => void;
-  onMove?: (jobId: string, toStage: StageId) => void; // ✅ ovde
+  onMove?: (jobId: string, toStage: StageId) => void;
+  onRestore?: (jobId: string) => void;
+  allStages: StageOption[];
 };
 
 const getCompanyColor = (name: string) => {
@@ -46,11 +50,50 @@ export const CompanyCard = ({
   salary,
   tags = [],
   status,
+  rejectedFromStage,
   onMove,
+  onRestore,
+  allStages,
 }: CompanyCardProps) => {
   return (
     <div className={`company_card company_card--${status}`} data-id={id}>
+      {/* HEADER */}
       <div className="company_card_header">
+        {/* MOVE / RESTORE CONTROL */}
+        <div className="company_card_move">
+          {stage === "rejected" ? (
+            <button
+              className="restore_btn"
+              onClick={() => onRestore?.(id)}
+            >
+              Restore
+            </button>
+          ) : (
+            <select
+              defaultValue=""
+              onChange={(e) => {
+                const toStage = e.target.value as StageId;
+                if (!toStage) return;
+                onMove?.(id, toStage);
+                e.currentTarget.value = "";
+              }}
+            >
+              <option value="" disabled>
+                Move to...
+              </option>
+
+              {allStages
+                .filter((s) => s.id !== stage)
+                .map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.title}
+                  </option>
+                ))}
+            </select>
+          )}
+        </div>
+
+        {/* COMPANY INFO */}
         <div className="company_card_info">
           <div
             className="company_card_avatar"
@@ -58,9 +101,12 @@ export const CompanyCard = ({
           >
             {getCompanyInitials(companyName)}
           </div>
-          <h4>{companyName}</h4>
-          <p>{position}</p>
-          {location && <p>📍 {location}</p>}
+
+          <div className="company_card_text">
+            <h4>{companyName}</h4>
+            <p>{position}</p>
+            {location && <p>📍 {location}</p>}
+          </div>
         </div>
 
         <div className="company_card_menu">
@@ -68,6 +114,7 @@ export const CompanyCard = ({
         </div>
       </div>
 
+      {/* DETAILS */}
       <div className="company_card_details">
         <div className="details_item">
           <span className="detail_label">Applied:</span>
@@ -80,6 +127,13 @@ export const CompanyCard = ({
           <span className="detail_label">Stage:</span>
           <span className="detail_value">{stage}</span>
         </div>
+
+        {status === "rejected" && rejectedFromStage && (
+          <div className="details_item">
+            <span className="detail_label">Rejected at:</span>
+            <span className="detail_value">{rejectedFromStage}</span>
+          </div>
+        )}
 
         {salary && (
           <div className="details_item">
@@ -104,10 +158,6 @@ export const CompanyCard = ({
           </span>
         </div>
       </div>
-
-      {/* ✅ test dugmad */}
-      <button onClick={() => onMove?.(id, "hr-interview")}>Move to HR</button>
-      <button onClick={() => onMove?.(id, "rejected")}>Reject</button>
     </div>
   );
 };
