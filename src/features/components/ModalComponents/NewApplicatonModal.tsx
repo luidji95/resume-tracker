@@ -8,7 +8,7 @@ type NewJobData = z.infer<typeof newJobSchema>;
 
 type Props = {
   onClose: () => void;
-  onSubmit: (data: NewJobData) => void;
+  onSubmit: (data: NewJobData) => Promise<void> | void;
 };
 
 export const NewApplicationModal = ({ onClose, onSubmit }: Props) => {
@@ -29,8 +29,8 @@ export const NewApplicationModal = ({ onClose, onSubmit }: Props) => {
     },
   });
 
-  const handleFormSubmit = (data: NewJobData) => {
-    onSubmit(data);
+  const handleFormSubmit = async (data: NewJobData) => {
+    await onSubmit(data);
     reset();
     onClose();
   };
