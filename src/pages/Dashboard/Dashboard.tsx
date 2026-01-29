@@ -10,10 +10,13 @@ import { supabase } from "../../lib/supabaseClient";
 type Profile = {
   userName: string | null;
   email: string | null;
+  
+ 
 };
 
 const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
+
 
   useEffect(() => {
     const loadProfile = async () => {

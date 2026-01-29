@@ -78,9 +78,6 @@ export const LoginPage = () => {
       const user = authData.user;
       if (!user) throw new Error("No user returned.");
 
-      
-      
-
       // Upsert - Azuriranje profila
       
       await supabase.from("profiles").upsert({ id: user.id, email: user.email }, { onConflict: "id" });
